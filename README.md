@@ -101,6 +101,7 @@ Create a trust policy
 ```shell
 ni ecs-trust-policy.json
 ```
+
 ```json
 {
     "Version": "2012-10-17",
@@ -134,27 +135,28 @@ Create an IAM policy
 ```shell
 ni ecs-task-policy.json
 ```
+
 ```json
 {
     "Version": "2012-10-17",
     "Statement": [
         {
-			"Sid": "logs",
+            "Sid": "logs",
             "Effect": "Allow",
             "Action": [
-				"logs:CreateLogStream"
+                "logs:CreateLogStream"
             ],
             "Resource": "arn:aws:logs:{region}:{aws_account_id}:log-group:batch-job-logs:log-stream:*"
         },
-		{
-			"Sid": "ecr",
-			"Effect": "Allow",
-			"Action": [
-				"ecr:GetDownloadUrlForLayer",
-				"ecr:BatchGetImage"
-			],
-			"Resource": "arn:aws:ecr:{region}:{aws_account_id}:repository/batch-job"
-		}
+        {
+            "Sid": "ecr",
+            "Effect": "Allow",
+            "Action": [
+                "ecr:GetDownloadUrlForLayer",
+                "ecr:BatchGetImage"
+            ],
+            "Resource": "arn:aws:ecr:{region}:{aws_account_id}:repository/batch-job"
+        }
     ]
 }
 ```
@@ -228,7 +230,7 @@ aws ec2 create-security-group --description "for batch-job" --group-name batch-j
 aws ec2 create-route --route-table-id {rtb-id} --destination-cidr-block 0.0.0.0/0 --gateway-id {igw-id}
 ```
 
-Run task
+Execute Task run
 
 ```shell
 aws ecs run-task --task-definition batch-job:1 --cli-input-json file://ecs-run-task.json
@@ -239,4 +241,34 @@ Read logs
 ```shell
 aws logs describe-log-streams --log-group-name batch-job-logs --query 'logStreams[0].logStreamName' --output text
 aws logs get-log-events --log-group-name batch-job-logs --log-stream-name {stream_name}
+```
+
+## Create AWS Batch artefacts
+
+Create Compute Environment ([doc](https://docs.aws.amazon.com/cli/latest/reference/batch/create-compute-environment.html))
+(may need more details here, using `--cli-input-json file://compute-environment.json`)
+    max vCPU: 1
+
+```shell
+aws batch create-compute-environment --compute-environment-name batch-job-ce --type MANAGED
+```
+
+Create Job Queue ([doc](https://docs.aws.amazon.com/cli/latest/reference/batch/create-job-queue.html))
+
+```shell
+aws batch create-job-queue --job-queue-name batch-job-queue --priority 100 --compute-environment-order order=1,computeEnvironment=FARGATE
+```
+
+Create Job Definition ([doc](https://docs.aws.amazon.com/cli/latest/reference/batch/register-job-definition.html))
+
+```shell
+aws batch register-job-definition --job-definition-name batch-job-job-def --type container
+```
+
+## Test run submitting new Job
+
+Submit new job ([doc](https://docs.aws.amazon.com/cli/latest/reference/batch/submit-job.html))
+
+```shell
+aws batch submit-job --job-name batch-job-job --job-queue batch-job-queue --job-definition batch-job-job-def
 ```
