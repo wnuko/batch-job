@@ -211,7 +211,7 @@ ni ecs-run-task.json
         "awsvpcConfiguration": {
             "subnets": ["{subnet}"],
             "securityGroups": ["{sg}"],
-            "assignPublicIp": "DISABLED"
+            "assignPublicIp": "ENABLED"
         }
     },
     "platformVersion": "1.4.0"
@@ -250,19 +250,19 @@ Create Compute Environment ([doc](https://docs.aws.amazon.com/cli/latest/referen
     max vCPU: 1
 
 ```shell
-aws batch create-compute-environment --compute-environment-name batch-job-ce --type MANAGED
+aws batch create-compute-environment --compute-environment-name batch-job-ce --type MANAGED --compute-resources type=FARGATE,maxvCpus=1,subnets={sn},securityGroupIds={sg}
 ```
 
 Create Job Queue ([doc](https://docs.aws.amazon.com/cli/latest/reference/batch/create-job-queue.html))
 
 ```shell
-aws batch create-job-queue --job-queue-name batch-job-queue --priority 100 --compute-environment-order order=1,computeEnvironment=FARGATE
+aws batch create-job-queue --job-queue-name batch-job-queue --priority 100 --compute-environment-order order=1,computeEnvironment=batch-job-ce
 ```
 
 Create Job Definition ([doc](https://docs.aws.amazon.com/cli/latest/reference/batch/register-job-definition.html))
 
 ```shell
-aws batch register-job-definition --job-definition-name batch-job-job-def --type container
+aws batch register-job-definition --job-definition-name batch-job-def --type container --container-properties '{"image":"{aws_account_id}.dkr.ecr.{region}.amazonaws.com/batch-job:latest","resourceRequirements":[{"type":"VCPU","value":"0.5"},{"type":"MEMORY","value":"1024"}],"executionRoleArn":"arn:aws:iam::{aws_account_id}:role/ecsTaskExecutionRole","networkConfiguration":{"assignPublicIp":"ENABLED"}}' --platform-capabilities FARGATE
 ```
 
 ## Test run submitting new Job
@@ -270,5 +270,5 @@ aws batch register-job-definition --job-definition-name batch-job-job-def --type
 Submit new job ([doc](https://docs.aws.amazon.com/cli/latest/reference/batch/submit-job.html))
 
 ```shell
-aws batch submit-job --job-name batch-job-job --job-queue batch-job-queue --job-definition batch-job-job-def
+aws batch submit-job --job-name batch-job-job --job-queue batch-job-queue --job-definition batch-job-def
 ```
