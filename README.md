@@ -33,7 +33,6 @@ ni Dockerfile
 
 ```shell
 cd src\BatchJob
-docker build .
 docker build -t batch-job .
 docker images
 ```
@@ -270,5 +269,5 @@ aws batch register-job-definition --job-definition-name batch-job-def --type con
 Submit new job ([doc](https://docs.aws.amazon.com/cli/latest/reference/batch/submit-job.html))
 
 ```shell
-aws batch submit-job --job-name batch-job-job --job-queue batch-job-queue --job-definition batch-job-def
+aws batch submit-job --job-name 20240110-1234-batch-job --job-queue batch-job-queue --job-definition batch-job-def --container-overrides '{"environment":[{"name":"MESSAGE","value":"Message in the bottle"}]}'
 ```
