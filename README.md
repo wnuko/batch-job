@@ -1,6 +1,15 @@
 # batch-job
 
-## initial project
+Steps:
+1. [Initial Project](#initial-project)
+   - [Build Project](#build-project)
+   - [Run Project](#run-project)
+2. [Create Dockerfile](#create-dockerfile)
+   - [Build Docker Image](#build-docker-image)
+   - [Create Docker Container](#create-docker-container)
+   - [Start Docker Container](#start-docker-container)
+
+## Initial Project
 
 ```shell
 mkdir src
@@ -8,21 +17,21 @@ cd src
 dotnet new console -f net6.0 --name BatchJob
 ```
 
-### build project
+### Build Project
 
 ```shell
 cd src\BatchJob
 dotnet build
 ```
 
-### run project
+### Run Project
 
 ```shell
 cd src\BatchJob
 dotnet run
 ```
 
-## create Dockerfile
+## Create Dockerfile
 
 ```shell
 cd src\BatchJob
